@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 from typing import Sequence
 
-from project import Project
+from bspy.project import Project
 
 
 def main(argv: Sequence[str] | None = None) -> int:

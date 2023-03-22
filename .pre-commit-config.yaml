@@ -1,19 +1,26 @@
 repos:
-- hooks:
-  - id: black
-  repo: https://github.com/psf/black
+- repo: https://github.com/psf/black
   rev: 23.1.0
-- hooks:
-  - id: flake8
-  repo: https://github.com/PyCQA/flake8
+  hooks:
+  - id: black
+- repo: https://github.com/PyCQA/flake8
   rev: 6.0.0
-- hooks:
+  hooks:
+  - id: flake8
+- repo: https://github.com/pycqa/isort
+  rev: 5.12.0
+  hooks:
   - id: isort
-  repo: https://github.com/pycqa/isort
-  rev: 5.11.2
-- hooks:
-  - args:
-    - --py38-plus
-    id: pyupgrade
-  repo: https://github.com/asottile/pyupgrade
+    name: isort (python)
+- repo: https://github.com/asottile/pyupgrade
   rev: v3.3.1
+  hooks:
+  - id: pyupgrade
+    args:
+    - --py38-plus
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.1.1
+    hooks:
+    -   id: mypy
+        additional_dependencies: [types-all]
+        exclude: ^testing/resources/

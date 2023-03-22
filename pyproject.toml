@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bspy"
+authors = [
+    {name = "Ido Frenkel", email = "ido123net@gmail.com"}
+]
+description = "Create python project quickly"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "LICENSE"}
+version = "0.0.1"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.isort]
+profile = 'black'
+
+[project.scripts]
+bspy = "bspy.bspy:main"
+
+[tool.distutils.bdist_wheel]
+universal = true
+
+[tool.coverage.run]
+plugins = "covdefaults"

@@ -1,5 +1,0 @@
-[project]
-name = "bspy"
-
-[tool.isort]
-profile = 'black'
