@@ -1,6 +1,15 @@
+from __future__ import annotations
+
+import argparse
 import datetime
-import os
+import pathlib
 import subprocess
+import yaml
+from typing import Sequence
+
+from repos import Repos
+from repos import DEFAULT_REPOS
+
 
 MIT_LICENSE = """\
 MIT License
@@ -27,33 +36,32 @@ THE SOFTWARE.
 """
 
 
-def create_project(project_name):
+def create_project(project_name: pathlib.Path) -> None:
     # Create project directory
-    os.makedirs(project_name)
+    project_name.mkdir()
 
     # Create src directory
-    src_dir = os.path.join(project_name, "src", project_name)
-    os.makedirs(src_dir)
+    src_dir = project_name / "src" / project_name.name.replace("-", "_")
+    src_dir.mkdir(parents=True)
 
     # Create project.toml file
-    toml_path = os.path.join(project_name, "project.toml")
-    with open(toml_path, "w") as f:
-        f.write('[project]\nname = "{}"\n'.format(project_name))
+    toml_path = project_name / "project.toml"
+    toml_path.write_text('[project]\n')
+    toml_path.write_text(f'name = "{project_name}"\n')
 
     # Create README.md file
-    readme_path = os.path.join(project_name, "README.md")
-    with open(readme_path, "w") as f:
-        f.write(f"# {project_name}\n")
+    readme_path = project_name / "README.md"
+    readme_path.write_text(f"# {project_name}\n")
 
     # Create .gitignore file
-    gitignore_path = os.path.join(project_name, ".gitignore")
-    with open(gitignore_path, "w") as f:
-        f.write(".vscode\n*.pyc\nvenv\n")
+    gitignore_path = project_name / ".gitignore"
+    gitignore_path.write_text(".vscode\n")
+    gitignore_path.write_text("*.pyc\n")
+    gitignore_path.write_text("venv\n")
 
     # Create LICENSE file
-    license_path = os.path.join(project_name, "LICENSE")
-    with open(license_path, "w") as f:
-        f.write(MIT_LICENSE.format(datetime.datetime.now().year))
+    license_path = project_name / "LICENSE"
+    license_path.write_text(MIT_LICENSE.format(datetime.datetime.now().year))
 
     create_pre_commit_config(project_name)
 
@@ -62,28 +70,26 @@ def create_project(project_name):
     subprocess.run(["virtualenv", "venv"], cwd=project_name)
 
 
-def create_pre_commit_config(project_name):
-    pre_commit_config_path = os.path.join(project_name, ".pre-commit-config.yaml")
-    with open(pre_commit_config_path, "w") as f:
-        f.write("repos:\n")
-        f.write("-   repo: https://github.com/psf/black\n")
-        f.write("    rev: 23.1.0\n")
-        f.write("    hooks:\n")
-        f.write("    -   id: black\n")
-        f.write("-   repo: https://github.com/PyCQA/flake8\n")
-        f.write("    rev: 6.0.0\n")
-        f.write("    hooks:\n")
-        f.write("    -   id: flake8\n")
-        f.write("-   repo: https://github.com/pycqa/isort\n")
-        f.write("    rev: 5.11.2\n")
-        f.write("    hooks:\n")
-        f.write("    -   id: isort\n")
-        f.write("-   repo: https://github.com/asottile/pyupgrade\n")
-        f.write("    rev: v3.3.1\n")
-        f.write("    hooks:\n")
-        f.write("    -   id: pyupgrade\n")
-        f.write("        args: [--py38-plus]\n")
+def create_pre_commit_config(
+    project_path: pathlib.Path,
+    repos: Repos = DEFAULT_REPOS,
+) -> None:
+    pre_commit_config_path = project_path / ".pre-commit-config.yaml"
+    with pre_commit_config_path.open("w") as f:
+        yaml.dump(repos.asdict(), f)
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(prog="bspy")
+    parser.add_argument(
+        "project_name",
+        help="The name of the project to create",
+        type=pathlib.Path,
+    )
+    args = parser.parse_args(argv)
+    create_project(args.project_name)
+    return 0
 
 
 if __name__ == "__main__":
-    create_project("my_project")
+    raise SystemExit(main())
